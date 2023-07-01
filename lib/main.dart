@@ -4,6 +4,8 @@ import 'package:run_collab/theme/color_schemes.g.dart'; // Theme file
 import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase dependency
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'package:run_collab/pages/LoginRegisterPage/login_register_page.dart';
+
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +28,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
       darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-      home: Container(),
+      home: LoginRegisterPage(),
     );
   }
 }
