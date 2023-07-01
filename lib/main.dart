@@ -4,7 +4,7 @@ import 'package:run_collab/theme/color_schemes.g.dart'; // Theme file
 import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase dependency
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'package:run_collab/pages/LoginRegisterPage/login_register_page.dart';
+import 'package:run_collab/pages/LoginPage/login_page.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
@@ -15,9 +15,12 @@ Future<void> main() async {
   await Supabase.initialize(
     url: supaUrl!,
     anonKey: supaAnnon!,
+    authFlowType: AuthFlowType.pkce,
   );
   runApp(const MainApp());
 }
+
+final supabase = Supabase.instance.client;
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -28,7 +31,48 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
       darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-      home: LoginRegisterPage(),
+      initialRoute: '/splash',
+      routes: <String, WidgetBuilder>{
+        '/splash': (_) => const BeginScreen(),
+        '/login': (_) => const LoginPage(),
+        '/': (_) => Container(),
+      },
+    );
+  }
+}
+
+class BeginScreen extends StatefulWidget {
+  const BeginScreen({super.key});
+
+  @override
+  State<BeginScreen> createState() => _BeginScreenState();
+}
+
+class _BeginScreenState extends State<BeginScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _redirect();
+  }
+
+  Future<void> _redirect() async {
+    await Future.delayed(Duration.zero);
+    if (!mounted) {
+      return;
+    }
+
+    final session = supabase.auth.currentSession;
+    if (session != null) {
+      Navigator.of(context).pushReplacementNamed('/');
+    } else {
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }
