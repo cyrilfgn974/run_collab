@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:run_collab/main.dart';
+import 'package:run_collab/pages/main_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -60,7 +61,10 @@ class _LoginPageState extends State<LoginPage> {
       final session = data.session;
       if (session != null) {
         _redirecting = true;
-        Navigator.of(context).pushReplacementNamed('/');
+        Navigator.push(context,
+            MaterialPageRoute<void>(builder: (BuildContext context) {
+          return const MainContent();
+        }));
       }
     });
     super.initState();
@@ -75,24 +79,52 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sign In')),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-        children: [
-          const Text('Sign in via the magic link with your email below'),
-          const SizedBox(height: 18),
-          TextFormField(
-            controller: _emailController,
-            decoration: const InputDecoration(labelText: 'Email'),
+    return Column(
+      children: [
+        Container(
+          height: MediaQuery.of(context).size.height / 5,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+                  colorFilter: ColorFilter.srgbToLinearGamma(),
+                  image: AssetImage(
+                    'assets/shoes_login.jpg',
+                  ),
+                  alignment: Alignment(1, 0.5),
+                  fit: BoxFit.fitWidth),
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20))),
+          child: const Center(
+            child: Text(
+              "Se connecter",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold),
+            ),
           ),
-          const SizedBox(height: 18),
-          ElevatedButton(
-            onPressed: _isLoading ? null : _signIn,
-            child: Text(_isLoading ? 'Loading' : 'Send Magic Link'),
+        ),
+        Container(
+          padding: EdgeInsets.all(10.0),
+          child: Column(
+            children: [
+              const Text('Sign in via the magic link with your email below'),
+              const SizedBox(height: 18),
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              const SizedBox(height: 18),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _signIn,
+                child: Text(_isLoading ? 'Loading' : 'Send Magic Link'),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

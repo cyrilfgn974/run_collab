@@ -12,7 +12,7 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   final _usernameController = TextEditingController();
-  final _websiteController = TextEditingController();
+  final _nameController = TextEditingController();
 
   var _loading = true;
 
@@ -30,7 +30,7 @@ class _AccountPageState extends State<AccountPage> {
           .eq('id', userId)
           .single();
       _usernameController.text = (data['username'] ?? '') as String;
-      _websiteController.text = (data['website'] ?? '') as String;
+      _nameController.text = (data['full_name'] ?? '') as String;
     } on PostgrestException catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -60,19 +60,19 @@ class _AccountPageState extends State<AccountPage> {
       _loading = true;
     });
     final userName = _usernameController.text.trim();
-    final website = _websiteController.text.trim();
+    final fullName = _nameController.text.trim();
     final user = supabase.auth.currentUser;
     final updates = {
       'id': user!.id,
       'username': userName,
-      'website': website,
+      'full_name': fullName,
       'updated_at': DateTime.now().toIso8601String(),
     };
     try {
       await supabase.from('profiles').upsert(updates);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Successfully updated profile!'),
+          content: Text('Le profil a bien été mis à jour!'),
         ),
       );
     } on PostgrestException catch (error) {
@@ -85,7 +85,7 @@ class _AccountPageState extends State<AccountPage> {
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Unexpected error occurred'),
+          content: const Text('Une erreur est survenue, veuillez réessayer'),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
@@ -138,7 +138,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   void dispose() {
     _usernameController.dispose();
-    _websiteController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -149,22 +149,56 @@ class _AccountPageState extends State<AccountPage> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(labelText: 'User Name'),
+                Container(
+                  height: MediaQuery.of(context).size.height / 5,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage(
+                            'assets/profile.jpg',
+                          ),
+                          alignment: Alignment(1, 0.5),
+                          fit: BoxFit.fitWidth),
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20))),
+                  child: const Center(
+                    child: Text(
+                      "Compte Utilisateur",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 18),
-                TextFormField(
-                  controller: _websiteController,
-                  decoration: const InputDecoration(labelText: 'Website'),
+                Container(
+                  padding: EdgeInsets.all(10.0),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _usernameController,
+                        decoration: const InputDecoration(
+                            labelText: "Nom d'utilisateur"),
+                      ),
+                      const SizedBox(height: 18),
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                            labelText: 'Nom et prénom complet'),
+                      ),
+                      const SizedBox(height: 18),
+                      ElevatedButton(
+                        onPressed: _loading ? null : _updateProfile,
+                        child: Text(_loading ? 'Saving...' : 'Update'),
+                      ),
+                      const SizedBox(height: 18),
+                      TextButton(
+                          onPressed: _signOut, child: const Text('Sign Out')),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 18),
-                ElevatedButton(
-                  onPressed: _loading ? null : _updateProfile,
-                  child: Text(_loading ? 'Saving...' : 'Update'),
-                ),
-                const SizedBox(height: 18),
-                TextButton(onPressed: _signOut, child: const Text('Sign Out')),
               ],
             ),
     );

@@ -32,49 +32,27 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
       darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-      home: BeginScreen(),
+      home: MainScreen(),
     );
   }
 }
 
-class BeginScreen extends StatefulWidget {
-  const BeginScreen({super.key});
-
-  @override
-  State<BeginScreen> createState() => _BeginScreenState();
-}
-
-class _BeginScreenState extends State<BeginScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _redirect();
-  }
-
-  Future<void> _redirect() async {
-    await Future.delayed(Duration.zero);
-    if (!mounted) {
-      return;
-    }
-
-    final session = supabase.auth.currentSession;
-    if (session != null) {
-      Navigator.push(context,
-          MaterialPageRoute<void>(builder: (BuildContext context) {
-        return const MainContent();
-      }));
-    } else {
-      Navigator.push(context,
-          MaterialPageRoute<void>(builder: (BuildContext context) {
-        return const LoginPage();
-      }));
-    }
-  }
+class MainScreen extends StatelessWidget {
+  const MainScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
+    return Scaffold(
+      body: StreamBuilder<AuthState>(
+        stream: supabase.auth.onAuthStateChange,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data!.session != null) {
+            return const MainContent();
+          } else {
+            return const LoginPage();
+          }
+        },
+      ),
     );
   }
 }
