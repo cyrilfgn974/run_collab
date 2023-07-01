@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase dependency
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:run_collab/pages/LoginPage/login_page.dart';
+import 'package:run_collab/pages/main_page.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
@@ -31,12 +32,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
       darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-      initialRoute: '/splash',
-      routes: <String, WidgetBuilder>{
-        '/splash': (_) => const BeginScreen(),
-        '/login': (_) => const LoginPage(),
-        '/': (_) => Container(),
-      },
+      home: BeginScreen(),
     );
   }
 }
@@ -63,9 +59,15 @@ class _BeginScreenState extends State<BeginScreen> {
 
     final session = supabase.auth.currentSession;
     if (session != null) {
-      Navigator.of(context).pushReplacementNamed('/');
+      Navigator.push(context,
+          MaterialPageRoute<void>(builder: (BuildContext context) {
+        return const MainContent();
+      }));
     } else {
-      Navigator.of(context).pushReplacementNamed('/login');
+      Navigator.push(context,
+          MaterialPageRoute<void>(builder: (BuildContext context) {
+        return const LoginPage();
+      }));
     }
   }
 
